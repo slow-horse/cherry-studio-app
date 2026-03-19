@@ -44,7 +44,11 @@ export default {
       package: 'com.cherry_ai.cherry_studio_app',
       userInterfaceStyle: 'automatic',
       predictiveBackGestureEnabled: false,
-      permissions: ['android.permission.ACCESS_WIFI_STATE', 'android.permission.CHANGE_WIFI_MULTICAST_STATE']
+      permissions: [
+        'android.permission.ACCESS_WIFI_STATE',
+        'android.permission.CHANGE_WIFI_MULTICAST_STATE',
+        'android.permission.RECORD_AUDIO'
+      ]
     },
     plugins: [
       './plugins/androidThemeColor',
