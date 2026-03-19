@@ -11,6 +11,9 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     name: Build Android APK and Create Release
@@ -19,7 +22,7 @@ jobs:
     steps:
       # Step 1: Checkout code
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Step 2: Setup Node.js
       - name: Setup Node.js
