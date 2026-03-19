@@ -59,11 +59,8 @@ describe('useSpeechRecognition', () => {
       })
     )
     // Should NOT use on-device recognition when default is available
-    expect(mockStart).toHaveBeenCalledWith(
-      expect.not.objectContaining({
-        requiresOnDeviceRecognition: true
-      })
-    )
+    const startArgs = mockStart.mock.calls[0][0]
+    expect(startArgs).not.toHaveProperty('requiresOnDeviceRecognition')
   })
 
   it('shows error when recognition is not available and on-device is not supported', async () => {

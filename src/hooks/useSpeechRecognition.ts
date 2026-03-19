@@ -14,13 +14,20 @@ interface UseSpeechRecognitionOptions {
   onError?: (error: string) => void
 }
 
+/** Minimum Android API level that supports on-device speech recognition */
+const ANDROID_API_ON_DEVICE_RECOGNITION_MIN = 33
+
 /**
  * Check if on-device speech recognition should be used as a fallback.
  * On Android 13+ (API 33+), on-device recognition is available even when
  * the default cloud-based recognition service is not (e.g. on Android 16+).
  */
 const shouldUseOnDeviceRecognition = (): boolean => {
-  if (Platform.OS === 'android' && typeof Platform.Version === 'number' && Platform.Version >= 33) {
+  if (
+    Platform.OS === 'android' &&
+    typeof Platform.Version === 'number' &&
+    Platform.Version >= ANDROID_API_ON_DEVICE_RECOGNITION_MIN
+  ) {
     return ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()
   }
   return false
