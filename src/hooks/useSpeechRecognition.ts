@@ -15,6 +15,18 @@ interface UseSpeechRecognitionOptions {
 }
 
 /**
+ * Check if on-device speech recognition should be used as a fallback.
+ * On Android 13+ (API 33+), on-device recognition is available even when
+ * the default cloud-based recognition service is not (e.g. on Android 16+).
+ */
+const shouldUseOnDeviceRecognition = (): boolean => {
+  if (Platform.OS === 'android' && typeof Platform.Version === 'number' && Platform.Version >= 33) {
+    return ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()
+  }
+  return false
+}
+
+/**
  * Convert i18n language tag to speech recognition locale
  */
 const getRecognitionLocale = (): string => {
@@ -105,13 +117,20 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
     try {
       // Check if recognition is available
       const isAvailable = await ExpoSpeechRecognitionModule.isRecognitionAvailable()
-      if (!isAvailable) {
+      // On Android 13+, fall back to on-device recognition when the default service is unavailable
+      const useOnDevice = !isAvailable && shouldUseOnDeviceRecognition()
+
+      if (!isAvailable && !useOnDevice) {
         const errorMsg = 'Speech recognition is not available on this device'
         logger.warn(errorMsg)
         setError(errorMsg)
         onErrorRef.current?.(errorMsg)
         setStatus('idle')
         return false
+      }
+
+      if (useOnDevice) {
+        logger.info('Default speech recognition unavailable, using on-device recognition')
       }
 
       // Request permissions
@@ -138,6 +157,8 @@ export const useSpeechRecognition = (options: UseSpeechRecognitionOptions = {}) 
         addsPunctuation: true,
         // iOS: Use dictation task hint for better pause tolerance
         iosTaskHint: 'dictation',
+        // Use on-device recognition when the default service is unavailable
+        ...(useOnDevice && { requiresOnDeviceRecognition: true }),
         // Enable language detection on supported devices
         ...(supportsLanguageDetection() && {
           // Note: languageDetection is only available on Android 14+
